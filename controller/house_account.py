@@ -46,6 +46,12 @@ class GraphicalInterface:
         root.mainloop()
 
 
+_is_init = False
+
+
 def run_gui():
-    app = Tk()
-    GraphicalInterface(app)
+    global _is_init
+    if not _is_init:
+        app = Tk()
+        GraphicalInterface(app)
+        _is_init = True
