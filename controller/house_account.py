@@ -1,17 +1,17 @@
 from tkinter import *
 from tkinter import messagebox
-from service import savings as ss
+from service import assets as ss
 from common import constants as const
-from model import saving as mod_sav
+from model import asset as mod_sav
 
 
 class GraphicalInterface:
-    def __init__(self, root: Tk, savings_sv: ss.SavingsSv):
+    def __init__(self, root: Tk, asset_sv: ss.AssetsSv):
         self.selected_asset_string: str = const.EMPTY_FIELD
-        self.selected_asset: mod_sav.Saving = mod_sav.null_object
+        self.selected_asset: mod_sav.Asset = mod_sav.null_object
         self.master: Tk = root
-        self._savings_sv: ss.SavingsSv = savings_sv
-        root.title("House Savings: v0.0.1")
+        self._asset_sv: ss.AssetsSv = asset_sv
+        root.title("House Assets: v0.0.1")
 
         # HEADER
         asset_header = Label(root, text="Assets: ", font=("Ubuntu", 12))
@@ -60,15 +60,15 @@ class GraphicalInterface:
     def peek_asset(self, _) -> None:
         selected_idx = self.assets_list.curselection()[0]
         self.selected_asset_string = self.assets_list.get(selected_idx)
-        saving, err = mod_sav.parse_from_str(self.selected_asset_string)
+        incoming_asset, err = mod_sav.parse_from_str(self.selected_asset_string)
         if err != const.EMPTY_FIELD:
             messagebox.showerror("Parse Error", err)
             return
-        self.selected_asset = saving
+        self.selected_asset = incoming_asset
         self.asset_val_entry.delete(0, END)
         self.asset_name_update_entry.delete(0, END)
-        self.asset_name_update_entry.insert(0, saving.name)
-        self.asset_val_entry.insert(0, saving.value)
+        self.asset_name_update_entry.insert(0, incoming_asset.name)
+        self.asset_val_entry.insert(0, incoming_asset.value)
 
     def update_asset(self) -> None:
         if self.selected_asset is mod_sav.null_object:
@@ -77,15 +77,15 @@ class GraphicalInterface:
         cur_value: str = self.asset_val_update.get()
         cur_name: str = self.asset_name_update.get()
 
-        updated_asset = mod_sav.Saving(cur_id, cur_name, cur_value)
-        self._savings_sv.update(updated_asset)
+        updated_asset = mod_sav.Asset(cur_id, cur_name, cur_value)
+        self._asset_sv.update(updated_asset)
         self.repopulate_assets()
 
     def repopulate_assets(self):
         self.assets_list.delete(0, END)
-        savings = self._savings_sv.fetch_all()
-        for s in savings:
-            self.assets_list.insert(END, s)
+        assets = self._asset_sv.fetch_all()
+        for a in assets:
+            self.assets_list.insert(END, a)
 
 
 _is_init = False
@@ -95,5 +95,5 @@ def run_gui():
     global _is_init
     if not _is_init:
         app = Tk()
-        GraphicalInterface(app, ss.savings_sv_instance)
+        GraphicalInterface(app, ss.asset_sv_instance)
         _is_init = True

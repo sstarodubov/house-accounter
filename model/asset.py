@@ -2,7 +2,7 @@ import re
 from common import constants as const
 
 
-class Saving:
+class Asset:
     def __init__(self, id: int, name: str, value: str):
         self.id = id
         self.name = name
@@ -16,10 +16,10 @@ def _build_none_error(field: str):
     f"""{field} is None"""
 
 
-null_object = Saving(-1, const.EMPTY_FIELD, const.EMPTY_FIELD)
+null_object = Asset(-1, const.EMPTY_FIELD, const.EMPTY_FIELD)
 
 
-def parse_from_str(s: str) -> (Saving, str):
+def parse_from_str(s: str) -> (Asset, str):
     id_match = re.search(r"\d+(?=\.)", s)
     if not id_match:
         return null_object, _build_none_error("id")
@@ -37,4 +37,4 @@ def parse_from_str(s: str) -> (Saving, str):
     id = int(id_str.strip())
     name = name_match.group().strip()
     value = value_match.group().strip()
-    return Saving(id, name, value), const.EMPTY_FIELD
+    return Asset(id, name, value), const.EMPTY_FIELD
