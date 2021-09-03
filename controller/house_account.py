@@ -35,7 +35,7 @@ class GraphicalInterface:
         edit_header = Label(root, text="Edit: ", font=("Ubuntu", 12))
         edit_header.grid(row=7, column=0, pady=10, sticky=W, padx=20)
 
-        # ASSET NAME
+        # ASSET TYPE
         self.asset_type_update = StringVar()
         asset_label = Label(root, text='Asset Type:', font=('Ubuntu', 10))
         asset_label.grid(row=8, column=0, sticky=W, padx=(20, 0), pady=10)
