@@ -29,5 +29,3 @@ def _get_secret_key() -> str:
 
 
 exchanger_sv_instance = ExchangerSv()
-
-exchanger_sv_instance.fetch_course_based_by_eur()
