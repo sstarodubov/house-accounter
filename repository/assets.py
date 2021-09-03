@@ -1,14 +1,11 @@
-import sqlite3
 from typing import List, Any
-
-from common import constants
 from model import asset as s
-
+from repository.db_conn import conn
 
 class AssetRepo:
 
-    def __init__(self):
-        self.conn = sqlite3.connect(constants.DB_NAME)
+    def __init__(self, db_conn):
+        self.conn = db_conn
         self.cursor = self.conn.cursor()
         initialize_table_statement = """
         CREATE TABLE IF NOT EXISTS assets 
@@ -34,4 +31,4 @@ class AssetRepo:
         self.conn.close()
 
 
-asset_repo_instance = AssetRepo()
+asset_repo_instance = AssetRepo(conn)

@@ -79,9 +79,9 @@ class GraphicalInterface:
             return
         cur_id: int = self.selected_asset.id
         cur_value: str = self.asset_val_update.get()
-        cur_type = ma.build_asset_type_from_string(self.asset_type_update.get())
+        cur_type: ma.AssetTypes = ma.build_asset_type_from_string(self.asset_type_update.get())
         if cur_type is ma.AssetTypes.UNKNOWN:
-            messagebox.showerror("Unknown Assert Type", "Change assert type")
+            messagebox.showerror("Unknown Assert Type", "Change type")
             return
         updated_asset = ma.Asset(cur_id, cur_type, cur_value)
         self._asset_sv.update(updated_asset)
