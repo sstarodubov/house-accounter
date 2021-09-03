@@ -14,7 +14,7 @@ class AssetRepo:
         CREATE TABLE IF NOT EXISTS assets 
         (
            id INTEGER PRIMARY KEY AUTOINCREMENT,  
-           name varchar(50),
+           type varchar(50),
            value varchar(50)
         )
         """
@@ -22,8 +22,8 @@ class AssetRepo:
         self.conn.commit()
 
     def upd(self, id: int, new_asset: s.Asset) -> None:
-        upd_statement = "UPDATE assets SET name = ?, value = ? WHERE id = ?"
-        self.cursor.execute(upd_statement, (new_asset.name, new_asset.value, id))
+        upd_statement = "UPDATE assets SET type = ?, value = ? WHERE id = ?"
+        self.cursor.execute(upd_statement, (new_asset.type.__str__(), new_asset.value, id))
         self.conn.commit()
 
     def fetch_all(self) -> List[Any]:

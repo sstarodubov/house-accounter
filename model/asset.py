@@ -1,15 +1,16 @@
 import re
 from common import constants as const
+from model.asset_types import AssetTypes, build_asset_type_from_string
 
 
 class Asset:
-    def __init__(self, id: int, name: str, value: str):
+    def __init__(self, id: int, name: AssetTypes, value: str):
         self.id = id
-        self.name = name
+        self.type: AssetTypes = name
         self.value = value
 
     def __str__(self):
-        return f"{self.id}. {self.name}: {self.value}"
+        return f"{self.id}. {self.type}: {self.value}"
 
 
 def _build_none_error(field: str):
@@ -34,7 +35,12 @@ def parse_from_str(s: str) -> (Asset, str):
 
     if not id_str.isdigit():
         return null_object, "id is not a digit"
+    type = build_asset_type_from_string(name_match.group().strip())
+
+    if type is AssetTypes.UNKNOWN:
+        return null_object, "unknown asset type"
+
     id = int(id_str.strip())
-    name = name_match.group().strip()
     value = value_match.group().strip()
-    return Asset(id, name, value), const.EMPTY_FIELD
+
+    return Asset(id, type, value), const.EMPTY_FIELD

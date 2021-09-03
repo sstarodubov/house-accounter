@@ -2,13 +2,13 @@ from tkinter import *
 from tkinter import messagebox
 from service import assets as ss
 from common import constants as const
-from model import asset as mod_sav
+from model import asset as ma
 
 
 class GraphicalInterface:
     def __init__(self, root: Tk, asset_sv: ss.AssetsSv):
         self.selected_asset_string: str = const.EMPTY_FIELD
-        self.selected_asset: mod_sav.Asset = mod_sav.null_object
+        self.selected_asset: ma.Asset = ma.null_object
         self.master: Tk = root
         self._asset_sv: ss.AssetsSv = asset_sv
         root.title("House Assets: v0.0.1")
@@ -36,11 +36,11 @@ class GraphicalInterface:
         edit_header.grid(row=7, column=0, pady=10, sticky=W, padx=20)
 
         # ASSET NAME
-        self.asset_name_update = StringVar()
-        asset_label = Label(root, text='Asset Name:', font=('Ubuntu', 10))
+        self.asset_type_update = StringVar()
+        asset_label = Label(root, text='Asset Type:', font=('Ubuntu', 10))
         asset_label.grid(row=8, column=0, sticky=W, padx=(20, 0), pady=10)
-        self.asset_name_update_entry = Entry(root, textvariable=self.asset_name_update)
-        self.asset_name_update_entry.grid(row=8, column=0, pady=10)
+        self.asset_type_update_entry = Entry(root, textvariable=self.asset_type_update)
+        self.asset_type_update_entry.grid(row=8, column=0, pady=10)
 
         # ASSET VALUE
         self.asset_val_update = StringVar()
@@ -58,26 +58,32 @@ class GraphicalInterface:
         root.mainloop()
 
     def peek_asset(self, _) -> None:
-        selected_idx = self.assets_list.curselection()[0]
-        self.selected_asset_string = self.assets_list.get(selected_idx)
-        incoming_asset, err = mod_sav.parse_from_str(self.selected_asset_string)
-        if err != const.EMPTY_FIELD:
-            messagebox.showerror("Parse Error", err)
-            return
-        self.selected_asset = incoming_asset
-        self.asset_val_entry.delete(0, END)
-        self.asset_name_update_entry.delete(0, END)
-        self.asset_name_update_entry.insert(0, incoming_asset.name)
-        self.asset_val_entry.insert(0, incoming_asset.value)
+        try:
+            selected_idx = self.assets_list.curselection()[0]
+            self.selected_asset_string = self.assets_list.get(selected_idx)
+            incoming_asset, err = ma.parse_from_str(self.selected_asset_string)
+            if err != const.EMPTY_FIELD:
+                messagebox.showerror("Parse Error", err)
+                return
+
+            self.selected_asset = incoming_asset
+            self.asset_val_entry.delete(0, END)
+            self.asset_type_update_entry.delete(0, END)
+            self.asset_type_update_entry.insert(0, incoming_asset.type)
+            self.asset_val_entry.insert(0, incoming_asset.value)
+        except IndexError:
+            pass
 
     def update_asset(self) -> None:
-        if self.selected_asset is mod_sav.null_object:
+        if self.selected_asset is ma.null_object:
             return
         cur_id: int = self.selected_asset.id
         cur_value: str = self.asset_val_update.get()
-        cur_name: str = self.asset_name_update.get()
-
-        updated_asset = mod_sav.Asset(cur_id, cur_name, cur_value)
+        cur_type = ma.build_asset_type_from_string(self.asset_type_update.get())
+        if cur_type is ma.AssetTypes.UNKNOWN:
+            messagebox.showerror("Unknown Assert Type", "Change assert type")
+            return
+        updated_asset = ma.Asset(cur_id, cur_type, cur_value)
         self._asset_sv.update(updated_asset)
         self.repopulate_assets()
 
