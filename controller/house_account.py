@@ -3,6 +3,7 @@ from tkinter import messagebox
 from service import assets as ss, exchanger as exch
 from common import constants as const
 from model import asset as ma
+from utils import prettify as pretty
 
 
 class GraphicalInterface:
@@ -101,9 +102,11 @@ class GraphicalInterface:
         for a in assets:
             cur_rate = rates[f"RUR_IN_{a.type.__str__()}"]
             cur_asset_in_rur = int(cur_rate * float(a.value))
-            self.assets_list.insert(END, f"{a} ({cur_asset_in_rur} RUR)")
+            pretty_num = pretty.prettify_number(str(cur_asset_in_rur))
+            self.assets_list.insert(END, f"{a} ({pretty_num} RUR)")
             all_sum += int(cur_asset_in_rur)
-        self.all_sum_label["text"] = f"{all_sum} RUR"
+        pretty_num = pretty.prettify_number(str(all_sum))
+        self.all_sum_label["text"] = f"{pretty_num} RUR"
 
 
 def run_gui():
