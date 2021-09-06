@@ -1,16 +1,17 @@
 from tkinter import *
 from tkinter import messagebox
-from service import assets as ss
+from service import assets as ss, exchanger as exch
 from common import constants as const
 from model import asset as ma
 
 
 class GraphicalInterface:
-    def __init__(self, root: Tk, asset_sv: ss.AssetsSv):
+    def __init__(self, root: Tk, asset_sv: ss.AssetsSv, exchanger_sv: exch.ExchangerSv):
         self.selected_asset_string: str = const.EMPTY_FIELD
         self.selected_asset: ma.Asset = ma.null_object
         self.master: Tk = root
         self._asset_sv: ss.AssetsSv = asset_sv
+        self._exchanger_sv: exch.ExchangerSv = exchanger_sv
         root.title("House Assets: v0.0.1")
 
         # HEADER
@@ -31,9 +32,11 @@ class GraphicalInterface:
         refresh_btn = Button(root, image=self.rfh_img, width=48, height=48, compound=CENTER)
         refresh_btn.grid(row=6, column=0)
 
-        # EDIT
-        edit_header = Label(root, text="Edit: ", font=("Ubuntu", 12))
-        edit_header.grid(row=7, column=0, pady=10, sticky=W, padx=20)
+        # ALL SUM
+        all_sum_header = Label(root, text="Overall sum: ", font=("Ubuntu", 12))
+        all_sum_header.grid(row=7, column=0, pady=10, sticky=W, padx=20)
+        self.all_sum_label = Label(root, text="0.00", font=('Ubuntu', 12))
+        self.all_sum_label.grid(row=7, column=0)
 
         # ASSET TYPE
         self.asset_type_update = StringVar()
@@ -90,8 +93,17 @@ class GraphicalInterface:
     def repopulate_assets(self):
         self.assets_list.delete(0, END)
         assets = self._asset_sv.fetch_all()
+        rates, err = self._exchanger_sv.fetch_rates()
+        if err != const.EMPTY_FIELD:
+            messagebox.showerror(err)
+            return
+        all_sum = 0
         for a in assets:
-            self.assets_list.insert(END, a)
+            cur_rate = rates[f"RUR_IN_{a.type.__str__()}"]
+            cur_asset_in_rur = int(cur_rate * float(a.value))
+            self.assets_list.insert(END, f"{a} ({cur_asset_in_rur} RUR)")
+            all_sum += int(cur_asset_in_rur)
+        self.all_sum_label["text"] = f"{all_sum} RUR"
 
 
 _is_init = False
@@ -101,5 +113,5 @@ def run_gui():
     global _is_init
     if not _is_init:
         app = Tk()
-        GraphicalInterface(app, ss.asset_sv_instance)
+        GraphicalInterface(app, ss.asset_sv_instance, exch.exchanger_sv_instance)
         _is_init = True

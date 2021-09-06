@@ -1,31 +1,61 @@
+import time
 from typing import Dict
 
 import requests
 from common import constants as const
+from repository import exchanger as ex_repo
 
 
 class ExchangerSv:
-    def __init__(self):
-        self.secret_key: str = _get_secret_key()
+    def __init__(self, exchanger_repo: ex_repo.ExchangerRepo):
+        self._secret_key: str = _get_secret_key()
+        self._exchanger_repo = exchanger_repo
 
-    def fetch_course_based_by_eur(self) -> (Dict[str, str], str):
-        url = f"http://api.exchangeratesapi.io/v1/latest?access_key={self.secret_key}"
+    def _fetch_rates_outside(self) -> (Dict[str, float], str):
+        url = f"http://api.exchangeratesapi.io/v1/latest?access_key={self._secret_key}"
 
         response = requests.get(url)
         if response.status_code != 200:
             return const.EMPTY_FIELD, f"api.exchangeratesapi.io responded: {response.text}"
         json = response.json()
-        courses = {
-            "EUR": 1.00,
-            "USD": json["rates"]["USD"],
-            "RUR": json["rates"]["RUB"]
+        rates = {
+            "EUR_IN_EUR": 1.00,
+            "RUR_IN_RUR": 1.00,
+            "USD_IN_EUR": json["rates"]["USD"],
+            "RUR_IN_EUR": json["rates"]["RUB"]
         }
-        return courses, const.EMPTY_FIELD
+        self._compute_usd(rates)
+        return rates, const.EMPTY_FIELD
+
+    def fetch_rates(self) -> (Dict[str, float], str):
+        cur_rate, last_time_update = self._exchanger_repo.fetch_rates()
+        cur_time = time.time()
+        if cur_time - last_time_update < 43200000:
+            return cur_rate | {"RUR_IN_RUR": 1.0}, const.EMPTY_FIELD
+        return self._fetch_rates_outside()
+
+    @staticmethod
+    def _compute_usd(m: Dict[str, float]):
+        rur_in_usd = m["RUR_IN_EUR"] / m["USD_IN_EUR"]
+        m["RUR_IN_USD"] = rur_in_usd
+
+    def update_rates(self) -> str:
+        cur_rate, last_time_update = self._exchanger_repo.fetch_rates()
+        cur_time = time.time()
+        if cur_time - last_time_update < 43200000:
+            return const.EMPTY_FIELD
+        rates, err = self._fetch_rates_outside()
+        if err != const.EMPTY_FIELD:
+            return err
+        self._exchanger_repo.update_rate("USD", rates["RUR_IN_USD"])
+        self._exchanger_repo.update_rate("EUR", rates["RUR_IN_EUR"])
+        return const.EMPTY_FIELD
 
 
 def _get_secret_key() -> str:
-    with open("secret_key_exchanger.txt", "r") as file:
+    with open(const.SECRET_KEY_EXCHANGE_PATH, "r") as file:
         return file.readline()
 
 
-exchanger_sv_instance = ExchangerSv()
+exchanger_sv_instance = ExchangerSv(ex_repo.exchanger_repo_instance)
+exchanger_sv_instance.update_rates()
