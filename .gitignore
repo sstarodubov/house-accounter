@@ -1,5 +1,7 @@
 repository/house_app
+repository/house_app_dev
 service/secret_key_exchanger.txt
 service/secret_key_etherscan.txt
 lectures
 dist
+venv

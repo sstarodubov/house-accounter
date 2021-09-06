@@ -27,7 +27,7 @@ def parse_from_str(s: str) -> (Asset, str):
     name_match = re.search(r"(?<=\d\.)\s*\w+\s*(?=:\s*\d+)", s)
     if not name_match:
         return null_object, _build_none_error("name")
-    value_match = re.search(r"(?<=:)\s*\d+", s)
+    value_match = re.search(r"(?<=:)\s*\d+\.?\d*", s)
 
     if not value_match:
         return null_object, _build_none_error("value")
