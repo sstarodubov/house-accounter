@@ -44,12 +44,14 @@ class ExchangerSv:
             return {}, eth_err
         cur_time = time.time()
         if cur_time - last_time_update < 43200000:
-            return (cur_rate | {"RUR_IN_RUR": 1.0, "RUR_IN_ETH": float(cur_eth_price_in_usd) * cur_rate["RUR_IN_USD"]}
-                    , const.EMPTY_FIELD)
+            cur_rate["RUR_IN_RUR"] = 1.0
+            cur_rate["RUR_IN_ETH"] = float(cur_eth_price_in_usd) * cur_rate["RUR_IN_USD"]
+            return cur_rate, const.EMPTY_FIELD
         rates, fiat_err = self._fetch_fiat_rates_outside()
         if fiat_err != const.EMPTY_FIELD:
             return {}, fiat_err
-        return rates | {"USD_IN_ETH": float(cur_eth_price_in_usd) * rates["RUR_IN_USD"]}, const.EMPTY_FIELD
+        rates["USD_IN_ETH"] = float(cur_eth_price_in_usd) * rates["RUR_IN_USD"]
+        return rates, const.EMPTY_FIELD
 
     @staticmethod
     def _compute_usd(m: Dict[str, float]):
