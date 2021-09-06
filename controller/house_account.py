@@ -106,12 +106,6 @@ class GraphicalInterface:
         self.all_sum_label["text"] = f"{all_sum} RUR"
 
 
-_is_init = False
-
-
 def run_gui():
-    global _is_init
-    if not _is_init:
-        app = Tk()
-        GraphicalInterface(app, ss.asset_sv_instance, exch.exchanger_sv_instance)
-        _is_init = True
+    app = Tk()
+    GraphicalInterface(app, ss.asset_sv_instance, exch.exchanger_sv_instance)
