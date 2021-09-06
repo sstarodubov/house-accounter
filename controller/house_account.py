@@ -29,9 +29,9 @@ class GraphicalInterface:
         self.assets_list.bind('<<ListboxSelect>>', self.peek_asset)
 
         # REFRESH BUTTON
-        self.rfh_img = PhotoImage(file="assets/r.png")
-        refresh_btn = Button(root, image=self.rfh_img, width=48, height=48, compound=CENTER)
-        refresh_btn.grid(row=6, column=0)
+        # self.rfh_img = PhotoImage(file="assets/r.png")
+        # refresh_btn = Button(root, image=self.rfh_img, width=48, height=48, compound=CENTER)
+        # refresh_btn.grid(row=6, column=0)
 
         # ALL SUM
         all_sum_header = Label(root, text="Overall sum: ", font=("Ubuntu", 12))
